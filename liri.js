@@ -1,111 +1,96 @@
-var keys = require("./keys.js");
-var Twitter = require("twitter");
+var keys = require("./keys.js"); //to access twitterKeys object in keys.js file
+var Twitter = require("twitter"); 
 var Spotify = require("node-spotify-api");
 var request = require("request");
-var fs = require("fs");
-
+var fs = require("fs"); //required to read random.txt file
+ 
 function main (command, search) {
+// main function will recognize commands given in the node/terminal command line &
+// then direct to appropriate functions passing through the command & search parameter (when necesary)    
    switch (command) {
-        case "my-tweets":
+        case "my-tweets": // = command
             showTweets();
             break;
-        case "spotify-this-song":
-            showSong(search);
+        case "spotify-this-song": // = command
+            showSong(search); // note: passing in search parameter to showSong()
             break;
-        case "movie-this":
-            showMovie(search);
+        case "movie-this": // = command
+            showMovie(search); // note: passing in search parameter to showMovie()
             break;
-        case "do-what-it-says":
+        case "do-what-it-says": // = command
             showRandom();
             break;
-        default: 
+        default: // = command to be performed if all prior = false
             showRandom();
             break;
    }
 };
-// Code to grab data [twitterKeys object] from keys.js
+
 function showTweets (){
-    var client = new Twitter(keys);
-    var params = {screenName: 'rebbbeccao'};
-    client.get('statuses/user_timeline', params, function(error, tweets, response){
-        if (!error) {
-            for (var i = 0; i < tweets.length; i++) {
-                if (i >= 20) {
-                    break;
+    var client = new Twitter(keys); // creating a new version of global variable Twitter w/ my account specific password keys
+    var params = {screenName: 'rebbbeccao'}; //code accepting my username to log in to my account
+    client.get('statuses/user_timeline', params, function(error, tweets, response){ //code provided by twitter npm to request tweets for account specified
+        if (!error) { //persorm code following if no error occurs
+            for (var i = 0; i < tweets.length; i++) { //turns tweets retrieved into a for loop
+                if (i >= 20) { 
+                    break; // if the amount of tweets retrieved exceed 20 break the for loop
                 }
-                console.log(tweets[i].created_at);
-                console.log("Tweet: " + tweets[i].text);
-                
-            }
-            
+                console.log(tweets[i].created_at); // finally provide specific info (date created/content) for the latest 20 tweets ([i])
+                console.log("Tweet: " + tweets[i].text);   
+            }    
         }
     });
-
-// Code to accept command 'my-tweets'
-// [node liri.js my-tweets] will display last 20 tweets and when they were created in terminal 
 };
 
-function showSong (songName){
-    if (!songName) {
-        songName = "The Sign Ace of Base";
+function showSong (songName){ //songName is now storing the passed parameter of search (see line 15)
+    if (!songName) { // if there is no songName variable/no search parameter entered into the node command line
+        songName = "The Sign Ace of Base"; // default this songName variable/search parameter
     }  
-    var spotify = new Spotify ({
+    var spotify = new Spotify ({ // code provided by node-spotify-api npm to access existing account 
         id: 'b48b1f7130c84db1b3a3c9a11fc8ca7b',
         secret: 'd93d7c864679474b90554238b5b3640b'    
     });
-    spotify.search({ type: 'track', query: songName}, function(error, data){
-        if (error) {
-            if (!data) {
-                return showSong("The Sign Ace of Base");
+    spotify.search({ type: 'track', query: songName}, function(error, data){ //code provided by npm to request info note: songName variable has been passed in to specify search
+        if (error) { //code to be performed if an error occurs
+            if (!data) { // there is no data found upon request...
+                return showSong("The Sign Ace of Base"); //re-run function for shown songName variable value
             }
             return console.log('Error occurred: ' + error);
         }
+        // display of specific returned values from retrieved data
         console.log("Track Title: " + data.tracks.items[0].name);
         console.log("Artist name: " + data.tracks.items[0].artists[0].name);
         console.log("From Album: " + data.tracks.items[0].album.name);
         console.log("Preview Url: " + data.tracks.items[0].preview_url);
     });
+}; 
 
-// Code to accept command 'spotify-this-song'
-    // [node liri.js spotify-this-song '<song name here>'] will show:
-        // Artist(s)
-        // The Song's name
-        // A preview link of the song from Spotify
-        // The album song is from
-        // If no song is found the program will default to "The Sign" by Ace of Base
-};      
-function showMovie(movieName) {
-request('http://www.omdbapi.com/?apikey=trilogy&t=' + movieName, function(error, response, body){
-    // IMDB Rating of the movie.
-    // * Rotten Tomatoes Rating of the movie.
-    // * Country where the movie was produced.
-    // * Language of the movie.
-    // * Plot of the movie.
-    // * Actors in the movie.
-    var parsedData = JSON.parse(body);
-    console.log("Movie Title: " + parsedData.Title);
-    console.log("Year Released: " + parsedData.Year);
-    console.log("IMDB Rating: " + parsedData.imdbRating);
-    console.log("Rotten Tomatoes: " + parsedData.Ratings[1].Value);
-    console.log("Country Produced: " + parsedData.Country);
-    console.log("Language: " + parsedData.Language);
-    console.log("Movie Plot: " + parsedData.Plot);
-    console.log("Actors: " + parsedData.Actors);
-    
-    
-});
-// Code to accept command 'movie-this'
-    // [node liri.js movie-this '<movie name here>']
+function showMovie(movieName) { //movieName is now storing the passed parameter of search (see line 18)
+    request('http://www.omdbapi.com/?apikey=trilogy&t=' + movieName, function(error, response, body){ //code provided by omdb documentation w/ passed in search parameter value "movieName" 
+        if (movieName === "") { // if there is no movieName variable/no search parameter entered into the node command line
+            movieName = "Mr Nobody"; // default this movieName variable/search parameter
+        }  
+        var parsedData = JSON.parse(body);     
+        console.log("Movie Title: " + parsedData.Title);
+        console.log("Year Released: " + parsedData.Year);
+        console.log("IMDB Rating: " + parsedData.imdbRating);
+        console.log("Rotten Tomatoes: " + parsedData.Ratings[1].Value);
+        console.log("Country Produced: " + parsedData.Country);
+        console.log("Language: " + parsedData.Language);
+        console.log("Movie Plot: " + parsedData.Plot);
+        console.log("Actors: " + parsedData.Actors); 
+    });
 };  
 
 function showRandom(){
-    // Code to accept command 'do-what-it-says'
+    // reads random.txt file
     fs. readFile("random.txt", "utf8", function(error, data) {
         if (error) {
             console.log(error);
-        }
-        var dataArr = data.split(",");
-        main(dataArr[0], dataArr[1]);
+        } // error catch 
+        var dataArr = data.split(","); // retrieves data from read file, splits value into an array at ","s, & stores new array into variable dataArr
+        main(dataArr[0], dataArr[1]); // passes dataArr index values into the command/search parameters into the main();
     });
 };
-main(process.argv[2], process.argv[3]);
+main(process.argv[2], process.argv[3]); // initial call of the main() with the corresponding process.argv indexes inputted into the command/search parameters
+                                        // this will be the first to run amongst the node liri.js call in the terminal command line
