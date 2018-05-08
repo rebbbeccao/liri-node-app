@@ -116,13 +116,18 @@ function showMovie(movieName) {
 }
 
 function writeToTxt(data) {
+  var dataArray = [];
+  dataArray.push(data);
+
+  console.log(dataArray);
+
   fs.appendFile('random.txt', '/r/n/r/n', function(error) {
     if (error) {
       return console.log(error);
     }
   });
 
-  fs.appendFile('random.txt', JSON.stringify(data), function(error) {
+  fs.appendFile('random.txt', JSON.stringify(dataArray), function(error) {
     if (error) {
       return console.log(error);
     } else {
@@ -137,8 +142,12 @@ function showRandom() {
     if (error) {
       console.log(error);
     } // error catch
-    var dataArr = data.split(','); // retrieves data from read file, splits value into an array at ","s, & stores new array into variable dataArr
-    main(dataArr[0], dataArr[1]); // passes dataArr index values into the command/search parameters into the main();
+
+    var dataArr = data;
+    // main(dataArr[0], dataArr[1]); // passes dataArr index values into the command/search parameters into the main();
+    var indexToRun = Math.floor(Math.random() * dataArr.length);
+    console.log(indexToRun);
+    console.log(dataArr[indexToRun]);
   });
 }
 main(process.argv[2], process.argv[3]); // initial call of the main() with the corresponding process.argv indexes inputted into the command/search parameters
