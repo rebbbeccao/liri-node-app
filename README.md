@@ -1,8 +1,6 @@
 # Try it out!
 
-Once you have Liri cloned to your local drive, run a few of these commands:
-
-#
+**Once you have Liri cloned to your local drive, run a few of these commands:**
 
 1.  node liri my-tweets
     * will return most previous tweets
